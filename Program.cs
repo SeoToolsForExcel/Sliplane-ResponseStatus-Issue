@@ -22,6 +22,11 @@ static async Task WriteWithPhrase(HttpContext context, int statusCode, string ph
         responseFeature.ReasonPhrase = phrase;
     }
 
+    // The same code on a header, which every proxy tested forwards untouched.
+    // A reverse proxy that terminates the connection can rebuild the status line
+    // from this, which is how the real store now sends it.
+    context.Response.Headers["X-SeoTools-Error"] = phrase;
+
     context.Response.ContentType = "text/plain; charset=utf-8";
     await context.Response.WriteAsync(
         $"This response was sent with status line: HTTP/1.1 {statusCode} {phrase}\n" +
